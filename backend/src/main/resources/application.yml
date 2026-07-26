@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: herlytics-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/herlytics}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# JWT Configurations
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250655368566D5970} # 256-bit key
+  expiration: 86400000 # 24 hours (in milliseconds)
+  refreshExpiration: 604800000 # 7 days (in milliseconds)
+
+# AI Service Configuration
+ai:
+  service:
+    url: ${AI_SERVICE_URL:http://localhost:8000}
+
+# Server configurations
+server:
+  port: 8080
+  error:
+    include-message: always
+
+# OpenAPI documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

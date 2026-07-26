@@ -1,0 +1,608 @@
+🌸 HERLYTICS SUMMARY
+🌸 HerLytics 
+
+ 
+
+Predict. Prevent. Empower. 
+
+ 
+
+Executive Summary 
+
+ 
+
+HerLytics is an AI-powered, open-source women's wellness platform designed to help women understand their health through predictive analytics, personalized wellness guidance, and lifestyle support. 
+
+Unlike traditional period-tracking applications, HerLytics focuses on early risk prediction rather than diagnosis. Its flagship feature is an AI-powered PCOS (PCOD) Risk Prediction system that estimates the likelihood of PCOS based on user-provided lifestyle, menstrual, and health information. 
+
+Important: HerLytics is not a medical diagnostic tool. It is a wellness platform that promotes awareness and encourages timely consultation with healthcare professionals. 
+
+ 
+
+🎯 Vision 
+
+ 
+
+To become the world's most trusted AI-powered women's wellness platform by combining artificial intelligence, healthcare knowledge, and intuitive user experiences to empower women at every stage of life. 
+
+ 
+
+🎯 Mission 
+
+ 
+
+Empower women with intelligent health insights that encourage preventive healthcare, healthier lifestyle choices, and informed decision-making. 
+
+ 
+
+🌍 Problem Statement 
+
+ 
+
+Millions of women experience symptoms related to PCOS but often recognize them only after they become more severe. 
+
+Current health applications typically focus on: 
+
+Period tracking 
+
+Calorie counting 
+
+Generic health tips 
+
+They rarely provide: 
+
+Early risk prediction 
+
+Personalized recommendations 
+
+Practical lifestyle guidance 
+
+Actionable next steps 
+
+This creates a gap between awareness and meaningful action. 
+
+ 
+
+ 
+
+💡 Solution 
+
+ 
+
+HerLytics bridges this gap by combining AI-driven risk prediction with personalized wellness support. 
+
+The platform analyzes user inputs such as: 
+
+Menstrual history 
+
+Lifestyle habits 
+
+Physical activity 
+
+Sleep quality 
+
+Diet 
+
+Stress 
+
+Family history 
+
+Symptoms 
+
+It then provides: 
+
+Personalized risk insights 
+
+Lifestyle recommendations 
+
+Diet plans 
+
+Healthy recipes 
+
+Wellness tracking 
+
+Educational resources 
+
+ 
+
+ 
+
+🌸 Core Features 
+
+ 
+
+1. PCOS (PCOD) Risk Prediction 
+
+The flagship feature. 
+
+Users answer approximately 20–25 carefully designed questions covering: 
+
+Age 
+
+Height 
+
+Weight 
+
+BMI 
+
+Menstrual regularity 
+
+Cycle length 
+
+Heavy bleeding 
+
+Acne 
+
+Hair loss 
+
+Facial hair growth 
+
+Weight gain 
+
+Sleep 
+
+Stress 
+
+Water intake 
+
+Exercise 
+
+Sugar consumption 
+
+Family history 
+
+Insulin resistance 
+
+Mood changes 
+
+Lifestyle habits 
+
+The AI model predicts the likelihood of PCOS risk and returns: 
+
+Risk percentage 
+
+Confidence score 
+
+Health insight 
+
+Personalized recommendations 
+
+This feature does not diagnose PCOS. 
+
+ 
+
+2. Women's Health Dashboard 
+
+A personalized dashboard displaying: 
+
+Wellness score 
+
+Cycle overview 
+
+Recent predictions 
+
+Water intake 
+
+Sleep tracking 
+
+Weight tracking 
+
+BMI 
+
+Activity progress 
+
+Health reminders 
+
+ 
+
+ 
+
+3. Personalized Diet Planner 
+
+Users receive customized meal plans based on their health profile. 
+
+Plans include: 
+
+Breakfast 
+
+Lunch 
+
+Dinner 
+
+Snacks 
+
+Each meal displays: 
+
+Calories 
+
+Protein 
+
+Carbohydrates 
+
+Fat 
+
+Nutrition information 
+
+Filters include: 
+
+Vegetarian 
+
+Vegan 
+
+High Protein 
+
+Low Carb 
+
+PCOS Friendly 
+
+ 
+
+ 
+
+4. Healthy Recipe Library 
+
+A curated collection of nutritious recipes. 
+
+Each recipe includes: 
+
+Ingredients 
+
+Cooking steps 
+
+Cooking time 
+
+Nutrition facts 
+
+Difficulty level 
+
+Users can: 
+
+Save recipes 
+
+Bookmark favorites 
+
+Search recipes 
+
+Filter recipes 
+
+ 
+
+ 
+
+5. Healthy Food Finder 
+
+If users prefer not to cook, HerLytics recommends healthier meal options. 
+
+Instead of integrating directly with food delivery platforms, the application provides search links for recommended dishes on food delivery services, allowing users to quickly find healthier options. 
+
+Examples: 
+
+Grilled Paneer Salad 
+
+Millet Bowl 
+
+Brown Rice Bowl 
+
+Greek Yogurt Bowl 
+
+Vegetable Soup 
+
+ 
+
+ 
+
+6. Menstrual Cycle Tracker 
+
+Track: 
+
+Periods 
+
+Cycle history 
+
+Ovulation window 
+
+Fertility estimates 
+
+Symptoms 
+
+Mood 
+
+Receive reminders for: 
+
+Upcoming periods 
+
+Ovulation 
+
+Hydration 
+
+Wellness activities 
+
+ 
+
+ 
+
+7. Lifestyle Tracking 
+
+Monitor daily habits including: 
+
+Water intake 
+
+Sleep 
+
+Exercise 
+
+Weight 
+
+Mood 
+
+Visual charts help users understand long-term trends. 
+
+ 
+
+ 
+
+8. AI Health Insights 
+
+Instead of simply displaying numbers, HerLytics explains: 
+
+"What do these results mean?" 
+
+The platform transforms health data into easy-to-understand recommendations. 
+
+ 
+
+ 
+
+9. Educational Hub 
+
+ 
+
+ 
+
+A library of medically reviewed articles covering topics such as: 
+
+PCOS 
+
+Women's nutrition 
+
+Hormonal health 
+
+Exercise 
+
+Stress management 
+
+Fertility 
+
+Menstrual health 
+
+ 
+
+ 
+
+10. User Profile 
+
+ 
+
+Users can manage: 
+
+Personal information 
+
+Health goals 
+
+Medical history 
+
+Saved recipes 
+
+Prediction history 
+
+Preferences 
+
+ 
+
+ 
+
+🌸 Future Features 
+
+ 
+
+ 
+
+The platform is designed to grow into a complete women's wellness ecosystem. 
+
+Future modules may include: 
+
+Pregnancy tracking 
+
+Menopause support 
+
+AI wellness assistant 
+
+Community forums 
+
+Doctor appointment booking 
+
+Wearable device integration 
+
+Medication reminders 
+
+Mental wellness tracking 
+
+Multi-language support 
+
+ 
+
+ 
+
+🎨 Design Philosophy 
+
+ 
+
+HerLytics is designed to feel like a trusted companion rather than a clinical application. 
+
+Design principles include: 
+
+Soft pastel colors 
+
+Rounded components 
+
+Clean typography 
+
+Smooth animations 
+
+Accessible interfaces 
+
+Minimalistic layouts 
+
+Mobile-first responsiveness 
+
+The goal is to create an experience that is calming, welcoming, and empowering. 
+
+ 
+
+ 
+
+🤖 Artificial Intelligence 
+
+ 
+
+The AI component analyzes health-related inputs using machine learning models trained on structured datasets. 
+
+The prediction engine provides: 
+
+Risk score 
+
+Confidence level 
+
+Personalized recommendations 
+
+The AI assists users in understanding potential health risks but does not replace professional medical advice. 
+
+ 
+
+ 
+
+🛠 Technology Stack 
+
+ 
+
+Frontend 
+
+ 
+
+React 
+
+Vite 
+
+TypeScript 
+
+Tailwind CSS 
+
+shadcn/ui 
+
+Framer Motion 
+
+Recharts 
+
+Backend 
+
+Spring Boot (Java) 
+
+Spring Security 
+
+JWT Authentication 
+
+Google OAuth 
+
+Hibernate 
+
+ 
+
+ 
+
+AI 
+
+ 
+
+FastAPI 
+
+Python 
+
+Scikit-learn 
+
+ 
+
+ 
+
+Database 
+
+ 
+
+PostgreSQL 
+
+Storage 
+
+Cloudinary 
+
+ 
+
+ 
+
+Deployment 
+
+ 
+
+Vercel 
+
+Render 
+
+Neon PostgreSQL 
+
+GitHub 
+
+ 
+
+🌍 Open Source Vision 
+
+HerLytics is intended to be a community-driven project. 
+
+Developers can contribute by: 
+
+Improving the AI model 
+
+Expanding recipe collections 
+
+Translating the platform 
+
+Enhancing accessibility 
+
+Building new wellness modules 
+
+Improving the user interface 
+
+The project will be released under the MIT License to encourage collaboration and innovation. 
+
+ 
+
+⚠ Medical Disclaimer 
+
+HerLytics is not a diagnostic or treatment platform. It provides predictive insights based on user-supplied information and should not be used as a substitute for professional medical advice, diagnosis, or treatment. Users with concerning symptoms or elevated risk should consult a qualified healthcare professional. 
+
+ 
+
+ 
+
+🌟 Unique Selling Proposition (USP) 
+
+ 
+
+HerLytics goes beyond tracking health data. It helps users understand, act, and improve through a seamless journey: 
+
+Predict → AI estimates the likelihood of PCOS risk. 
+
+Prevent → Personalized nutrition, healthy habits, and educational guidance support preventive care. 
+
+Empower → Clear insights and practical tools enable women to make informed decisions about their health. 
+
+ 
+
+Instead of stopping at information, HerLytics focuses on turning insights into everyday actions, making it more than a tracker—it becomes a comprehensive, AI-powered wellness companion designed to support women throughout different stages of their health journey. 
