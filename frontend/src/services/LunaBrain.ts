@@ -38,42 +38,45 @@ export const getStoredUserContext = (): UserContext => {
 
   const storedAssessment = localStorage.getItem('demo_latest_assessment');
   const parsedAssessment = storedAssessment ? JSON.parse(storedAssessment) : null;
+  const assessmentCompleted = Boolean(parsedAssessment && (parsedAssessment.riskPercentage !== undefined || parsedAssessment.riskCategory));
 
   const answersMap = new Map(parsedAssessment?.answers?.map((a: any) => [a.key, a.value]) || []);
 
-  const weight = parseFloat((answersMap.get('weight') as string) || '65');
-  const height = parseFloat((answersMap.get('height') as string) || '165');
-  const bmi = weight / ((height / 100) * (height / 100));
-  const roundedBmi = Math.round(bmi * 10) / 10;
+  const weight = parseFloat((answersMap.get('weight') as string) || '0');
+  const height = parseFloat((answersMap.get('height') as string) || '0');
+  const bmi = height > 0 ? Math.round((weight / ((height / 100) * (height / 100))) * 10) / 10 : 0;
 
-  let bmiCategory = 'Normal Weight';
-  if (roundedBmi < 18.5) bmiCategory = 'Underweight';
-  else if (roundedBmi >= 25 && roundedBmi < 30) bmiCategory = 'Overweight';
-  else if (roundedBmi >= 30) bmiCategory = 'Obese';
+  let bmiCategory = 'Not Calculated';
+  if (bmi > 0) {
+    if (bmi < 18.5) bmiCategory = 'Underweight';
+    else if (bmi >= 18.5 && bmi < 25) bmiCategory = 'Normal Weight';
+    else if (bmi >= 25 && bmi < 30) bmiCategory = 'Overweight';
+    else bmiCategory = 'Obese';
+  }
 
   const storedLogs = JSON.parse(localStorage.getItem('demo_menstrual_logs') || '[]');
   const latestLog = storedLogs.length > 0 ? storedLogs[0] : null;
 
-  const storedMood = localStorage.getItem('demo_today_mood') || 'Okay 😐';
+  const storedMood = localStorage.getItem('demo_today_mood') || 'Neutral 😐';
 
   return {
     userName,
-    age: parseInt((answersMap.get('age') as string) || '24'),
+    age: parseInt((answersMap.get('age') as string) || '0'),
     height,
     weight,
-    bmi: roundedBmi,
+    bmi,
     bmiCategory,
-    pcosRiskCategory: parsedAssessment?.riskCategory || 'Moderate Risk',
-    pcosRiskPercentage: parsedAssessment?.riskPercentage || 68.5,
-    assessmentCompleted: !!parsedAssessment,
-    lastPeriodDate: latestLog?.logDate || '2026-07-20',
+    pcosRiskCategory: parsedAssessment?.riskCategory || '',
+    pcosRiskPercentage: parsedAssessment?.riskPercentage || 0,
+    assessmentCompleted,
+    lastPeriodDate: latestLog?.logDate || '',
     cycleLength: latestLog?.cycleLength || 28,
-    waterGlasses: parseInt(localStorage.getItem('demo_water_glasses') || '6'),
+    waterGlasses: parseInt(localStorage.getItem('demo_water_glasses') || '0'),
     waterGoalGlasses: 8,
-    sleepHours: parseFloat(localStorage.getItem('demo_sleep_hours') || '6.5'),
+    sleepHours: parseFloat(localStorage.getItem('demo_sleep_hours') || '0'),
     sleepGoalHours: 8,
     currentMood: storedMood,
-    exerciseDays: parseInt((answersMap.get('exerciseDays') as string) || '3'),
+    exerciseDays: parseInt((answersMap.get('exerciseDays') as string) || '0'),
     dietPreference: 'Vegetarian',
   };
 };

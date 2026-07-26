@@ -109,15 +109,7 @@ const Tracker: React.FC = () => {
         if (storedLogs.length > 0) {
           setPrediction(calculateDemoPrediction(storedLogs[0]));
         } else {
-          setPrediction(calculateDemoPrediction({
-            id: 1,
-            logDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            cycleLength: 28,
-            periodDuration: 5,
-            mood: 'Good',
-            symptoms: [],
-            createdAt: new Date().toISOString()
-          }));
+          setPrediction(null);
         }
       } finally {
         setLoading(false);
@@ -339,17 +331,17 @@ const Tracker: React.FC = () => {
           )}
 
           {/* Predictions Cards */}
-          {prediction && (
+          {prediction ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-5 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-[2rem] shadow-md space-y-1">
                 <span className="text-[10px] font-black uppercase text-pink-100 block">Next Period Date</span>
-                <span className="text-xl font-black block">{prediction.predictedNextPeriodStart ? formatDate(prediction.predictedNextPeriodStart) : 'In 16 days'}</span>
-                <span className="text-xs font-bold text-pink-100 block">Expected 5 days duration</span>
+                <span className="text-xl font-black block">{prediction.predictedNextPeriodStart ? formatDate(prediction.predictedNextPeriodStart) : 'Not Logged'}</span>
+                <span className="text-xs font-bold text-pink-100 block">Expected {prediction.periodDuration || 5} days duration</span>
               </div>
 
               <div className="p-5 bg-gradient-to-br from-purple-600 to-indigo-700 text-white rounded-[2rem] shadow-md space-y-1">
                 <span className="text-[10px] font-black uppercase text-purple-100 block">Predicted Ovulation</span>
-                <span className="text-xl font-black block">{prediction.predictedOvulationDate ? formatDate(prediction.predictedOvulationDate) : 'Jul 12'}</span>
+                <span className="text-xl font-black block">{prediction.predictedOvulationDate ? formatDate(prediction.predictedOvulationDate) : 'Not Logged'}</span>
                 <span className="text-xs font-bold text-purple-100 block">Peak LH Surge window</span>
               </div>
 
@@ -358,6 +350,14 @@ const Tracker: React.FC = () => {
                 <span className="text-xl font-black block">6 Days Window</span>
                 <span className="text-xs font-bold text-teal-100 block">High fertility chance</span>
               </div>
+            </div>
+          ) : (
+            <div className="p-6 bg-purple-50/60 border border-purple-100 rounded-[2rem] text-center space-y-2">
+              <span className="text-2xl block">🩸</span>
+              <h4 className="font-black text-sm text-gray-900">No Period Logs Recorded Yet</h4>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Log your last period start date using the button above to calculate cycle predictions and fertile windows.
+              </p>
             </div>
           )}
 

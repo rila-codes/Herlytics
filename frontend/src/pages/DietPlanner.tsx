@@ -5,6 +5,7 @@ import {
   Flame, HeartPulse, Apple, Search, ExternalLink, ShieldCheck, Truck, Store
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { hasCompletedAssessment } from '../utils/assessmentState';
 
 interface RestaurantOption {
   id: string;
@@ -512,7 +513,23 @@ const DietPlanner: React.FC = () => {
       {/* ------------------------------------------------------------- */}
       {/* TAB 1: 7-DAY DIET CHART VIEW                                  */}
       {/* ------------------------------------------------------------- */}
-      {activeTab === 'chart' && (
+      {activeTab === 'chart' && !hasCompletedAssessment() ? (
+        <div className="glass rounded-[2.5rem] border border-brand-light p-8 text-center space-y-4 shadow-card animate-fade-in">
+          <div className="w-16 h-16 bg-purple-100 text-brand rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+            🔒
+          </div>
+          <div className="space-y-2 max-w-md mx-auto">
+            <h3 className="text-xl font-black text-gray-900">Personalized Diet Chart Locked</h3>
+            <p className="text-xs text-gray-600 font-medium leading-relaxed">
+              Complete your wellness assessment to unlock your personalized anti-inflammatory 7-day meal schedule.
+            </p>
+          </div>
+          <Link to="/assessment" className="inline-flex items-center gap-2 px-6 py-3 bg-brand text-white font-black text-xs rounded-xl shadow-md hover:bg-brand-dark transition-all">
+            <span>Start Assessment (5–7 mins)</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      ) : activeTab === 'chart' && (
         <div className="space-y-6 animate-fade-in">
           
           {/* 7-Day Day Selector Buttons */}

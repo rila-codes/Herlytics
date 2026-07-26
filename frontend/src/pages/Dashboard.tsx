@@ -1,371 +1,489 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Sparkles, Droplets, Moon, Footprints, Heart, Smile, Scale, 
-  ChevronRight, ArrowRight, Award, Trophy, Bookmark, HelpCircle, Check, ArrowUpRight 
+  ArrowRight, Lock, ShieldCheck, CheckCircle2, BookOpen, Clock, AlertCircle, FileText
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from 'react-router-dom';
-
-const weeklyData = [
-  { day: 'Mon', score: 65 },
-  { day: 'Tue', score: 78 },
-  { day: 'Wed', score: 72 },
-  { day: 'Thu', score: 80 },
-  { day: 'Fri', score: 75 },
-  { day: 'Sat', score: 85 },
-  { day: 'Sun', score: 82 },
-];
-
-const sparklineData = [
-  { val: 40 }, { val: 55 }, { val: 48 }, { val: 65 }, 
-  { val: 60 }, { val: 75 }, { val: 82 }
-];
+import { hasCompletedAssessment, getLatestAssessmentData } from '../utils/assessmentState';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const displayName = user?.firstName || 'Rila';
-  const [waterGlasses, setWaterGlasses] = useState(6);
+  const displayName = user?.firstName || 'Friend';
+  
+  const [isAssessed, setIsAssessed] = useState<boolean>(() => hasCompletedAssessment());
+  const [assessmentData, setAssessmentData] = useState(() => getLatestAssessmentData());
+  const [waterGlasses, setWaterGlasses] = useState(4);
+
+  // Listen for assessment updates in real-time
+  useEffect(() => {
+    const handleUpdate = () => {
+      setIsAssessed(hasCompletedAssessment());
+      setAssessmentData(getLatestAssessmentData());
+    };
+
+    window.addEventListener('herlytics_assessment_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('herlytics_assessment_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  // --------------------------------------------------------------------------
+  // STATE 1: UNASSESSED NEW USER WELCOME DASHBOARD
+  // --------------------------------------------------------------------------
+  if (!isAssessed) {
+    return (
+      <div className="space-y-8 pb-16 animate-fade-in">
+        
+        {/* 🌸 WARM WELCOME BANNER */}
+        <div className="relative rounded-[2.5rem] bg-gradient-to-br from-purple-600 via-indigo-600 to-brand text-white p-8 md:p-10 shadow-xl overflow-hidden space-y-6">
+          <div className="relative z-10 space-y-3 max-w-3xl">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-black backdrop-blur-md">
+              <Sparkles size={14} className="text-amber-300" />
+              Welcome to HerLytics! 🌸
+            </span>
+
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
+              Hello, {displayName}! We're excited to be part of your wellness journey.
+            </h1>
+
+            <p className="text-sm md:text-base text-purple-100 font-medium leading-relaxed">
+              Before we can provide personalized insights and recommendations, we'd like to understand you better through a short wellness assessment.
+            </p>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <Link
+                to="/assessment"
+                className="px-8 py-4 bg-white text-purple-900 font-black text-sm rounded-2xl shadow-lg hover:bg-purple-50 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <span>Start Assessment</span>
+                <ArrowRight size={18} />
+              </Link>
+              
+              <div className="flex items-center gap-2 text-xs font-bold text-purple-200 justify-center sm:justify-start">
+                <Clock size={16} />
+                <span>Takes approximately 5–7 minutes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Background decorative artwork */}
+          <div className="absolute top-1/2 right-6 transform -translate-y-1/2 hidden lg:flex items-center justify-center opacity-90 pointer-events-none">
+            <div className="h-56 w-56 bg-white/10 backdrop-blur-lg rounded-full border border-white/20 flex items-center justify-center text-7xl shadow-2xl">
+              🧘‍♀️
+            </div>
+          </div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+        </div>
+
+        {/* 📋 ASSESSMENT PROGRESS CARD */}
+        <div className="glass rounded-[2.5rem] border border-brand-light/60 p-6 shadow-card space-y-4">
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-pinkdark bg-purple-100/80 px-3 py-1 rounded-full">
+                Step 1 of 1
+              </span>
+              <h2 className="text-lg font-black text-gray-900 pt-2">Initial Wellness Assessment</h2>
+              <p className="text-xs text-gray-500 font-medium">Complete this required step to activate your health analytics.</p>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-2xl">
+              <AlertCircle size={18} className="text-amber-600" />
+              <span className="text-xs font-extrabold text-amber-800">Assessment Not Started</span>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs font-extrabold text-gray-500">
+              <span>Completion Progress</span>
+              <span>0%</span>
+            </div>
+            <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+              <div className="bg-brand h-full rounded-full w-0 transition-all duration-500" />
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between text-xs font-bold text-brand">
+            <span>🔒 All personalized health cards remain locked until completion</span>
+            <Link to="/assessment" className="hover:underline flex items-center gap-1 font-black">
+              <span>Begin Now</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+
+        {/* 🔒 LOCKED FEATURE PREVIEW GRID */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-base font-black text-gray-900">Personalized Health Features</h2>
+              <p className="text-xs text-gray-500 font-medium">
+                Complete your wellness assessment to unlock personalized insights and recommendations.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            {/* LOCKED CARD 1: Wellness Score */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden group">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <Heart size={16} className="text-gray-400" />
+                  <span>Wellness Score</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-4xl text-gray-300 font-black">-- / 100</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment to calculate your personal score
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Score</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+            {/* LOCKED CARD 2: AI Insights */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <Sparkles size={16} className="text-gray-400" />
+                  <span>AI Risk & Health Insights</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-sm font-bold text-gray-400">Risk Profile: Not Evaluated</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment to generate risk analytics
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Insights</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+            {/* LOCKED CARD 3: Personalized Diet Plan */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <BookOpen size={16} className="text-gray-400" />
+                  <span>Personalized Diet Plan</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-sm font-bold text-gray-400">Low-GI Anti-Inflammatory Menu</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment to generate custom meal plans
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Diet Chart</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+            {/* LOCKED CARD 4: Cycle Analytics */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <span>🩸</span>
+                  <span>Cycle & Hormonal Analytics</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-sm font-bold text-gray-400">Cycle Phase: Pending Data</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment to track menstrual phases
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Analytics</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+            {/* LOCKED CARD 5: Health Reports */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <FileText size={16} className="text-gray-400" />
+                  <span>Health Reports & Trends</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-sm font-bold text-gray-400">Monthly Progress Report</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment to view trend analysis
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Reports</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+            {/* LOCKED CARD 6: Lifestyle Recommendations */}
+            <div className="relative rounded-[2rem] bg-gray-50 border border-gray-200 p-6 shadow-2xs space-y-4 opacity-90 overflow-hidden">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+                  <Smile size={16} className="text-gray-400" />
+                  <span>Lifestyle Recommendations</span>
+                </span>
+                <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-[10px] font-black rounded-full flex items-center gap-1">
+                  <Lock size={12} /> Locked
+                </span>
+              </div>
+
+              <div className="py-4 text-center space-y-2">
+                <div className="text-sm font-bold text-gray-400">Targeted Wellness Goals</div>
+                <p className="text-xs text-gray-500 font-semibold max-w-xs mx-auto">
+                  Complete assessment for tailored recommendations
+                </p>
+              </div>
+
+              <Link to="/assessment" className="w-full py-2.5 bg-gray-200 hover:bg-brand hover:text-white text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                <span>Unlock Goals</span>
+                <Lock size={12} />
+              </Link>
+            </div>
+
+          </div>
+        </div>
+
+        {/* 🔒 PRIVACY, SECURITY & AI COMPANION ASSURANCE */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div className="glass rounded-[2rem] border border-white/60 p-6 shadow-soft space-y-3">
+            <div className="flex items-center gap-2 text-brand font-black text-sm">
+              <ShieldCheck size={20} className="text-emerald-600" />
+              <span>Your Data Privacy & Security</span>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed font-medium">
+              HerLytics strictly protects your personal information. Your responses during the wellness assessment are stored securely and used solely to calculate your individual hormonal risk and nutritional guidance.
+            </p>
+          </div>
+
+          <div className="glass rounded-[2rem] border border-white/60 p-6 shadow-soft space-y-3">
+            <div className="flex items-center gap-2 text-brand font-black text-sm">
+              <Sparkles size={20} className="text-amber-500" />
+              <span>Meet Luna - Your AI Companion</span>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed font-medium">
+              Luna is ready to answer questions about PCOS, low-GI foods, and menstrual health. Complete your initial assessment so Luna can tailor its answers specifically to your health profile.
+            </p>
+          </div>
+
+        </div>
+
+        {/* 📚 EDUCATIONAL WOMEN'S HEALTH ARTICLES */}
+        <div className="space-y-4 pt-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-base font-black text-gray-900">Educational Health Resources</h2>
+              <p className="text-xs text-gray-500 font-medium">General evidence-based guidance for women's health</p>
+            </div>
+            <Link to="/education" className="text-xs font-extrabold text-brand hover:underline flex items-center gap-1">
+              <span>View Library</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { title: 'Understanding PCOS & Hormones', time: '5 min read', icon: '🥑', tag: 'Education' },
+              { title: 'Anti-Inflammatory Nutrition Basics', time: '8 min read', icon: '🥗', tag: 'Nutrition' },
+              { title: 'Gentle Yoga for Pelvic Health', time: '12 min read', icon: '🧘‍♀️', tag: 'Fitness' },
+              { title: 'Stress & Cortisol Control', time: '7 min read', icon: '🧠', tag: 'Mindfulness' }
+            ].map((item, idx) => (
+              <Link
+                key={idx}
+                to="/education"
+                className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-2xs hover:shadow-card hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <div className="h-28 rounded-xl bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 flex items-center justify-center text-4xl border border-gray-100 group-hover:scale-105 transition-transform">
+                  {item.icon}
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-brand bg-purple-50 px-2 py-0.5 rounded-full">
+                    {item.tag}
+                  </span>
+                  <h4 className="font-extrabold text-xs text-gray-900 group-hover:text-brand transition-colors line-clamp-2">
+                    {item.title}
+                  </h4>
+                  <span className="text-[10px] font-semibold text-gray-400 block pt-1">{item.time}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // STATE 2: ASSESSED USER FULL PERSONALIZED DASHBOARD
+  // --------------------------------------------------------------------------
+  const riskPercentage = assessmentData?.riskPercentage || 0;
+  const riskCategory = assessmentData?.riskCategory || 'Low Risk';
+  const wellnessScore = Math.round(100 - riskPercentage * 0.4);
 
   return (
     <div className="space-y-6 pb-12 animate-fade-in">
       
       {/* 🌸 HERO SECTION */}
       <div className="relative rounded-[2.5rem] bg-gradient-to-r from-pink-100/80 via-purple-50/70 to-pink-50/80 border border-pink-200/60 p-8 md:p-10 shadow-sm overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
-        
-        {/* Left Welcome Text */}
         <div className="space-y-2 max-w-xl z-10">
           <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-            Good morning, {displayName}! 👋
+            Welcome back, {displayName}! 👋
           </h1>
           <p className="text-sm font-semibold text-gray-600 leading-relaxed">
-            You're taking beautiful steps towards a healthier, more balanced you.
+            Your authentic health profile is active. Take a look at your personalized wellness analytics.
           </p>
 
           <div className="pt-2 flex items-center gap-3">
             <span className="px-3.5 py-1.5 bg-white/90 text-brand font-black text-xs rounded-full border border-purple-100 shadow-2xs">
-              🌸 Follicular Phase • Peak Energy
+              Risk Level: {riskCategory} ({riskPercentage}%)
             </span>
-            <span className="text-xs font-bold text-gray-500">
-              Day 12 of Cycle
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+              ✓ Assessment Completed
             </span>
           </div>
         </div>
 
-        {/* Right Botanical Artwork Visual */}
         <div className="relative z-10 flex items-center justify-center shrink-0">
           <div className="relative h-44 w-64 md:h-52 md:w-72 bg-gradient-to-tr from-pink-200/50 to-purple-200/40 rounded-3xl p-4 flex items-center justify-center border border-white/60 shadow-inner">
             <div className="text-center space-y-1">
               <span className="text-6xl block transform hover:scale-110 transition-transform">🧘‍♀️</span>
-              <div className="flex gap-2 justify-center text-xl animate-bounce">
-                <span>🌸</span>
-                <span>🦋</span>
-                <span>🪷</span>
-              </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-brand-pinkdark block pt-1">
-                Mindful Wellness
+                Mindful Balance
               </span>
             </div>
           </div>
         </div>
-
-        {/* Background Floating Petals */}
-        <div className="absolute -top-10 -right-10 w-48 h-48 bg-pink-300/20 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-purple-300/20 rounded-full blur-2xl pointer-events-none" />
       </div>
 
-      {/* 📊 TOP METRIC CARDS GRID (4 COLUMNS) */}
+      {/* 📊 TOP METRIC CARDS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* CARD 1: WELLNESS SCORE */}
-        <div className="rounded-[2rem] bg-gradient-to-br from-purple-600 via-indigo-600 to-brand text-white p-6 shadow-xl space-y-3 relative overflow-hidden flex flex-col justify-between group transform hover:-translate-y-1 transition-all duration-300">
+        <div className="rounded-[2rem] bg-gradient-to-br from-purple-600 via-indigo-600 to-brand text-white p-6 shadow-xl space-y-3 relative overflow-hidden flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-extrabold text-purple-200 flex items-center gap-1.5">
                 <Heart size={14} className="fill-purple-300 text-purple-300" />
                 <span>Wellness Score</span>
               </span>
-              <span className="text-[10px] font-black bg-white/20 px-2.5 py-0.5 rounded-full text-white">
-                Live
+              <span className="text-[10px] font-black bg-emerald-500/80 px-2.5 py-0.5 rounded-full text-white">
+                Authentic
               </span>
             </div>
 
             <div className="pt-3">
               <div className="text-3xl font-black tracking-tight">
-                82 <span className="text-lg font-bold text-purple-200">/ 100</span>
+                {wellnessScore} <span className="text-lg font-bold text-purple-200">/ 100</span>
               </div>
               <span className="text-xs font-bold text-emerald-300 block pt-0.5">
-                Great job! +5% vs last week
+                Evaluated from your assessment
               </span>
             </div>
           </div>
-
-          {/* Sparkline chart SVG */}
-          <div className="h-14 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sparklineData}>
-                <defs>
-                  <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ffffff" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <Area type="monotone" dataKey="val" stroke="#ffffff" strokeWidth={3} fillOpacity={1} fill="url(#scoreGrad)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
         </div>
 
-        {/* CARD 2: CYCLE DAY */}
-        <div className="rounded-[2rem] bg-white border border-gray-100/80 p-6 shadow-xs space-y-3 flex flex-col justify-between group hover:shadow-card transition-all duration-300">
-          <div className="flex justify-between items-start">
-            <div className="space-y-1">
-              <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
-                <span className="text-rose-500">🩸</span>
-                <span>Cycle Day</span>
-              </span>
-              <h3 className="text-2xl font-black text-gray-900 pt-1">Day 12</h3>
-              <span className="text-xs font-bold text-rose-600 block">Follicular Phase</span>
-            </div>
-
-            {/* Circular SVG Ring */}
-            <div className="relative h-14 w-14 flex items-center justify-center shrink-0">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  className="text-gray-100"
-                  strokeWidth="3.5"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  className="text-rose-500"
-                  strokeDasharray="42, 100"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <span className="absolute text-[10px] font-black text-rose-600">12d</span>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-[11px] text-gray-500 font-semibold">
-            <span>Next Period in 16 days</span>
-            <Link to="/tracker" className="text-brand font-extrabold hover:underline">Details →</Link>
-          </div>
-        </div>
-
-        {/* CARD 3: TODAY'S FOCUS */}
-        <div className="rounded-[2rem] bg-white border border-gray-100/80 p-6 shadow-xs space-y-3 flex flex-col justify-between group hover:shadow-card transition-all duration-300">
+        {/* CARD 2: RISK PROFILE */}
+        <div className="rounded-[2rem] bg-white border border-gray-100 p-6 shadow-xs space-y-3 flex flex-col justify-between">
           <div className="space-y-1">
             <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
-              <span className="text-blue-500">🎯</span>
-              <span>Today's Focus</span>
+              <Sparkles size={14} className="text-amber-500" />
+              <span>AI Risk Category</span>
             </span>
-            <h3 className="text-sm font-black text-gray-900 pt-1 leading-tight">
-              Drink 2 more glasses of water
+            <h3 className="text-2xl font-black text-gray-900 pt-1">{riskCategory}</h3>
+            <span className="text-xs font-bold text-brand block">{riskPercentage}% Risk Score</span>
+          </div>
+
+          <div className="pt-2 border-t border-gray-100 flex justify-between items-center text-[11px] text-gray-500">
+            <Link to="/insights" className="text-brand font-extrabold hover:underline">View Breakdown →</Link>
+          </div>
+        </div>
+
+        {/* CARD 3: HYDRATION TRACKER */}
+        <div className="rounded-[2rem] bg-white border border-gray-100 p-6 shadow-xs space-y-3 flex flex-col justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-extrabold text-gray-500 flex items-center gap-1.5">
+              <Droplets size={14} className="text-blue-500" />
+              <span>Hydration Tracker</span>
+            </span>
+            <h3 className="text-sm font-black text-gray-900 pt-1">
+              {waterGlasses} / 8 glasses logged
             </h3>
           </div>
 
-          <div className="space-y-1.5 pt-2">
-            <div className="flex justify-between text-xs font-extrabold">
-              <span className="text-blue-600">{waterGlasses} / 8 glasses</span>
-              <span className="text-gray-400">75%</span>
-            </div>
-            <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
-              <div className="bg-blue-500 h-full rounded-full w-[75%] transition-all duration-500" />
-            </div>
-          </div>
-
           <div className="pt-2 flex justify-between items-center">
-            <span className="text-[10px] font-bold text-gray-400">Hydration & Hormones</span>
             <button
               onClick={() => setWaterGlasses((g) => Math.min(8, g + 1))}
-              className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-black text-[10px] rounded-xl border border-blue-200 transition-all"
+              className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-black text-xs rounded-xl border border-blue-200 transition-all"
             >
               + Add Glass
             </button>
           </div>
         </div>
 
-        {/* CARD 4: AI TIP FOR YOU */}
-        <div className="rounded-[2rem] bg-gradient-to-br from-pink-50/90 via-purple-50/60 to-white border border-purple-100 p-6 shadow-xs space-y-3 flex flex-col justify-between group hover:shadow-card transition-all duration-300">
+        {/* CARD 4: DIET RECOMMENDATION LINK */}
+        <div className="rounded-[2rem] bg-gradient-to-br from-pink-50/90 via-purple-50/60 to-white border border-purple-100 p-6 shadow-xs space-y-3 flex flex-col justify-between">
           <div className="space-y-1">
             <span className="text-xs font-extrabold text-brand flex items-center gap-1.5">
-              <Sparkles size={14} className="text-amber-500" />
-              <span>AI Tip for You</span>
+              <BookOpen size={14} className="text-brand" />
+              <span>Tailored Diet Plan</span>
             </span>
             <p className="text-xs font-semibold text-gray-700 leading-relaxed pt-1">
-              "A 15-min walk after meals can help regulate blood sugar and improve mood."
+              Low-GI meals tailored to your assessment profile.
             </p>
           </div>
 
           <Link
-            to="/profile"
-            className="w-full py-2.5 bg-white hover:bg-brand hover:text-white border border-purple-200 text-brand font-extrabold text-xs rounded-xl shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-300"
+            to="/diet"
+            className="w-full py-2.5 bg-brand text-white font-extrabold text-xs rounded-xl shadow-2xs flex items-center justify-center gap-1.5 hover:bg-brand-dark transition-all duration-300"
           >
-            <span>Ask Luna</span>
-            <Sparkles size={12} className="text-amber-400" />
+            <span>View Meal Plan</span>
+            <ArrowRight size={14} />
           </Link>
         </div>
 
       </div>
 
-      {/* 💧 YOUR DAILY OVERVIEW GRID (6 METRIC CARDS) */}
-      <div className="space-y-3">
-        <h2 className="text-base font-black text-gray-900">Your Daily Overview</h2>
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          
-          {/* Water */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Droplets size={18} className="text-blue-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Water</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">{waterGlasses} / 8</span>
-            <span className="text-[10px] font-bold text-blue-600 block">glasses</span>
-          </div>
-
-          {/* Sleep */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Moon size={18} className="text-purple-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Sleep</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">7 h 12 m</span>
-            <span className="text-[10px] font-bold text-purple-600 block">Good quality</span>
-          </div>
-
-          {/* Steps */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Footprints size={18} className="text-emerald-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Steps</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">6,432</span>
-            <span className="text-[10px] font-bold text-emerald-600 block">Steps today</span>
-          </div>
-
-          {/* Exercise */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Heart size={18} className="text-rose-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Exercise</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">30</span>
-            <span className="text-[10px] font-bold text-rose-600 block">mins active</span>
-          </div>
-
-          {/* Mood */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Smile size={18} className="text-amber-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Mood</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">Happy</span>
-            <span className="text-[10px] font-bold text-amber-600 block">Great!</span>
-          </div>
-
-          {/* Weight */}
-          <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-2xs space-y-1 transform hover:scale-102 transition-all">
-            <div className="flex justify-between items-center">
-              <Scale size={18} className="text-indigo-500" />
-              <span className="text-[10px] font-extrabold text-gray-400">Weight</span>
-            </div>
-            <span className="text-base font-black text-gray-900 block pt-1">63.2 kg</span>
-            <span className="text-[10px] font-bold text-emerald-600 block">↓ 0.8 kg</span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* 📈 ANALYTICS & ACHIEVEMENTS ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* THIS WEEK'S PROGRESS CHART (2 COLUMNS) */}
-        <div className="lg:col-span-2 bg-white rounded-[2rem] border border-gray-100 p-6 shadow-xs space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-extrabold text-sm text-gray-900">This Week's Progress</h3>
-              <p className="text-[11px] text-gray-500">Track your daily wellness score trends</p>
-            </div>
-
-            <select className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-extrabold text-gray-700 focus:outline-none">
-              <option>Wellness Score</option>
-              <option>Water Intake</option>
-              <option>Sleep Hours</option>
-            </select>
-          </div>
-
-          <div className="h-60 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklyData}>
-                <defs>
-                  <linearGradient id="weekGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 700 }} />
-                <YAxis hide domain={[50, 100]} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#ffffff', borderRadius: '1rem', border: '1px solid #f3f4f6', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                  labelStyle={{ fontWeight: 800, color: '#111827' }}
-                />
-                <Area type="monotone" dataKey="score" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#weekGrad)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* ACHIEVEMENTS (1 COLUMN) */}
-        <div className="bg-white rounded-[2rem] border border-gray-100 p-6 shadow-xs space-y-4 flex flex-col justify-between">
-          <div className="flex justify-between items-center">
-            <h3 className="font-extrabold text-sm text-gray-900">Achievements</h3>
-            <Link to="/profile" className="text-xs font-bold text-brand hover:underline">View all</Link>
-          </div>
-
-          <div className="space-y-3">
-            <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-500 text-white font-black flex items-center justify-center text-lg shadow-sm">
-                💧
-              </div>
-              <div>
-                <span className="font-extrabold text-xs text-gray-900 block">Hydration Hero</span>
-                <span className="text-[10px] text-gray-500 font-medium">Met goal for 7 consecutive days</span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-100 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-amber-500 text-white font-black flex items-center justify-center text-lg shadow-sm">
-                🧘
-              </div>
-              <div>
-                <span className="font-extrabold text-xs text-gray-900 block">Early Bird</span>
-                <span className="text-[10px] text-gray-500 font-medium">Logged morning check-in 5 days</span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-pink-50/60 rounded-2xl border border-pink-100 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-pink-500 text-white font-black flex items-center justify-center text-lg shadow-sm">
-                ⭐
-              </div>
-              <div>
-                <span className="font-extrabold text-xs text-gray-900 block">Consistency Star</span>
-                <span className="text-[10px] text-gray-500 font-medium">14-day Bloom Streak active</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* 📚 RECOMMENDED FOR YOU CAROUSEL */}
-      <div className="space-y-4 pt-2">
+      {/* 📚 RECOMMENDED EDUCATIONAL CAROUSEL */}
+      <div className="space-y-4 pt-4">
         <div className="flex justify-between items-center">
           <h2 className="text-base font-black text-gray-900">Recommended for You</h2>
           <Link to="/education" className="text-xs font-extrabold text-brand hover:underline flex items-center gap-1">
@@ -374,17 +492,17 @@ const Dashboard: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { title: 'PCOS and Nutrition', time: '5 min read', icon: '🥑', tag: 'Nutrition' },
-            { title: '10 Foods to Balance Hormones', time: '8 min read', icon: '🥗', tag: 'Diet' },
+            { title: 'PCOS and Anti-Inflammatory Nutrition', time: '5 min read', icon: '🥑', tag: 'Nutrition' },
+            { title: '10 Foods to Balance Estrogen & Insulin', time: '8 min read', icon: '🥗', tag: 'Diet' },
             { title: 'Yoga for Hormonal Balance', time: '12 min', icon: '🧘‍♀️', tag: 'Fitness' },
-            { title: 'Meditation for Stress Relief', time: '7 min', icon: '🧠', tag: 'Mindfulness' },
-            { title: 'High Protein Lunch Ideas', time: '10 min', icon: '🍲', tag: 'Recipes' }
+            { title: 'High Protein Low-GI Recipes', time: '10 min', icon: '🍲', tag: 'Recipes' }
           ].map((item, idx) => (
-            <div
+            <Link
               key={idx}
-              className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-2xs hover:shadow-card hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+              to="/education"
+              className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-2xs hover:shadow-card hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="h-28 rounded-xl bg-gradient-to-br from-purple-100 via-pink-50 to-blue-50 flex items-center justify-center text-4xl border border-gray-100 group-hover:scale-105 transition-transform">
                 {item.icon}
@@ -398,7 +516,7 @@ const Dashboard: React.FC = () => {
                 </h4>
                 <span className="text-[10px] font-semibold text-gray-400 block pt-1">{item.time}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

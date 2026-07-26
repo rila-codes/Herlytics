@@ -247,11 +247,11 @@ const Recipes: React.FC = () => {
     if (stored) {
       const parsed = JSON.parse(stored);
       setUserHealthStatus({
-        riskCategory: parsed.riskCategory || 'Moderate Risk',
-        riskPercentage: parsed.riskPercentage || 68.5,
+        riskCategory: parsed.riskCategory || 'Low Risk',
+        riskPercentage: parsed.riskPercentage || 0,
       });
     } else {
-      setUserHealthStatus({ riskCategory: 'Moderate Risk', riskPercentage: 68.5 });
+      setUserHealthStatus(null);
     }
 
     const storedBookmarks = localStorage.getItem('bookmarkedRecipes');

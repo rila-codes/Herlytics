@@ -219,14 +219,23 @@ const Insights: React.FC = () => {
 
   if (!assessment) {
     return (
-      <div className="max-w-md mx-auto py-12 px-4 text-center">
-        <div className="bg-brand-pastel border border-brand-light p-8 rounded-3xl space-y-4">
-          <ShieldAlert className="mx-auto text-brand" size={48} />
-          <h3 className="text-xl font-bold text-brand-text">No Assessment Found</h3>
-          <p className="text-sm text-brand-muted">Please complete the PCOS assessment questionnaire first to view insights.</p>
-          <Link to="/assessment" className="inline-block px-8 py-3 bg-brand text-white font-bold rounded-2xl shadow-md">
-            Start Assessment
-          </Link>
+      <div className="max-w-xl mx-auto py-16 px-4 text-center animate-fade-in">
+        <div className="glass rounded-[2.5rem] border border-brand-light/80 p-8 shadow-card space-y-5">
+          <div className="w-16 h-16 bg-purple-100 text-brand rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+            🔒
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-2xl font-black text-gray-900">Personalized Insights Locked</h3>
+            <p className="text-sm text-gray-600 font-medium leading-relaxed max-w-md mx-auto">
+              Complete your wellness assessment to unlock personalized PCOS risk evaluation, factor analysis, and tailored health recommendations.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Link to="/assessment" className="inline-flex items-center gap-2 px-8 py-4 bg-brand text-white font-black text-sm rounded-2xl shadow-md hover:bg-brand-dark transition-all">
+              <span>Start Assessment (5–7 mins)</span>
+              <Sparkles size={16} />
+            </Link>
+          </div>
         </div>
       </div>
     );

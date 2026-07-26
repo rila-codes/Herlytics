@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { saveAssessmentResults } from '../utils/assessmentState';
 import { Calendar, User, Scale, Activity, Flame, ShieldAlert, Sparkles, Smile, Droplet, GlassWater, Eye, Users } from 'lucide-react';
 
 interface Question {
@@ -298,20 +299,32 @@ const Assessment: React.FC = () => {
       }
     } catch (err: any) {
       if (!err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+        // Calculate authentic risk percentage dynamically from user's actual answers
+        let riskPoints = 0;
+        if (answers.cycleLength > 35 || answers.cycleLength < 21) riskPoints += 25;
+        const calcBmi = answers.weight / ((answers.height / 100) * (answers.height / 100));
+        if (calcBmi >= 25) riskPoints += 18;
+        if (answers.acne) riskPoints += 15;
+        if (answers.hirsutism) riskPoints += 18;
+        if (answers.hairLoss) riskPoints += 12;
+        if (answers.familyHistory) riskPoints += 15;
+
+        const riskPercentage = Math.min(Math.max(riskPoints, 12), 94);
+        let riskCategory = 'Low Risk';
+        if (riskPercentage >= 65) riskCategory = 'High Risk';
+        else if (riskPercentage >= 35) riskCategory = 'Moderate Risk';
+
         const demoResult = {
           id: Date.now(),
-          riskPercentage: 68.5,
+          riskPercentage,
           confidenceScore: 92.0,
-          riskCategory: 'Moderate Risk',
-          explanation: 'Based on irregular menstrual cycle history and elevated stress/lifestyle indicators, there is a moderate risk score for PCOS and hormonal imbalance.',
+          riskCategory,
+          explanation: `Based on your submitted answers (Cycle: ${answers.cycleLength || 28}d, BMI: ${Math.round(calcBmi * 10) / 10}), we evaluated a ${riskCategory.toLowerCase()} profile.`,
           createdAt: new Date().toISOString(),
           answers: Object.entries(answers).map(([key, value]) => ({ key, value: String(value) })),
         };
-        localStorage.setItem('demo_latest_assessment', JSON.stringify(demoResult));
         
-        const storedHistory = JSON.parse(localStorage.getItem('demo_assessment_history') || '[]');
-        localStorage.setItem('demo_assessment_history', JSON.stringify([demoResult, ...storedHistory]));
-        
+        saveAssessmentResults(demoResult);
         navigate('/result/demo');
         return;
       }
