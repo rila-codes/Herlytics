@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { getUserScopedKey } from '../utils/assessmentState';
 import { 
   Calendar, Plus, Heart, HeartPulse, Clock, Sparkles, Smile, MessageSquare, 
   AlertCircle, Droplets, Moon, Footprints, Scale, Check, CheckCircle2, Flame, ShieldAlert 
@@ -170,6 +171,8 @@ const Tracker: React.FC = () => {
       createdAt: new Date().toISOString()
     };
 
+    const logsKey = getUserScopedKey('menstrual_logs');
+
     try {
       await api.post('/api/menstrual/logs', {
         logDate,
@@ -182,28 +185,28 @@ const Tracker: React.FC = () => {
       const updatedLogs = [newLogObj, ...logs];
       setLogs(updatedLogs);
       setPrediction(calculateDemoPrediction(newLogObj));
-      localStorage.setItem('demo_menstrual_logs', JSON.stringify(updatedLogs));
+      localStorage.setItem(logsKey, JSON.stringify(updatedLogs));
       setShowAddForm(false);
     } catch (err: any) {
       const updatedLogs = [newLogObj, ...logs];
       setLogs(updatedLogs);
       setPrediction(calculateDemoPrediction(newLogObj));
-      localStorage.setItem('demo_menstrual_logs', JSON.stringify(updatedLogs));
+      localStorage.setItem(logsKey, JSON.stringify(updatedLogs));
       setShowAddForm(false);
     }
   };
 
   const handleSaveLifestyle = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('demo_water_glasses', waterGlasses.toString());
-    localStorage.setItem('demo_sleep_hours', sleepHours.toString());
+    localStorage.setItem(getUserScopedKey('water_glasses'), waterGlasses.toString());
+    localStorage.setItem(getUserScopedKey('sleep_hours'), sleepHours.toString());
     setLifestyleSavedMsg('Lifestyle metrics saved successfully! 💧');
     setTimeout(() => setLifestyleSavedMsg(''), 3000);
   };
 
   const handleSaveMood = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('demo_today_mood', selectedMood);
+    localStorage.setItem(getUserScopedKey('today_mood'), selectedMood);
     setMoodSavedMsg(`Mood logged as "${selectedMood}"! 😊`);
     setTimeout(() => setMoodSavedMsg(''), 3000);
   };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Search, Clock, Award, Heart, Check, X, ShieldAlert, Sparkles, Bookmark, Flame, AlertCircle, RefreshCw, ChefHat, CheckCircle2 } from 'lucide-react';
+import { getLatestAssessmentData } from '../utils/assessmentState';
 
 interface Recipe {
   id: number;
@@ -242,13 +243,12 @@ const Recipes: React.FC = () => {
   const tags = ['All', 'PCOS Friendly', 'Low Carb', 'High Protein', 'Anti-Inflammatory', 'Fast Food Swap', 'Smoothies & Desserts', 'Vegetarian', 'Vegan'];
 
   useEffect(() => {
-    // Read health status from localStorage
-    const stored = localStorage.getItem('demo_latest_assessment');
-    if (stored) {
-      const parsed = JSON.parse(stored);
+    // Read health status from authentic user-scoped assessment state
+    const data = getLatestAssessmentData();
+    if (data) {
       setUserHealthStatus({
-        riskCategory: parsed.riskCategory || 'Low Risk',
-        riskPercentage: parsed.riskPercentage || 0,
+        riskCategory: data.riskCategory || 'Low Risk',
+        riskPercentage: data.riskPercentage || 0,
       });
     } else {
       setUserHealthStatus(null);

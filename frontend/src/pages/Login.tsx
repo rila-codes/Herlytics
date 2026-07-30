@@ -22,11 +22,13 @@ const Login: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password');
+      setError(err.response?.data?.message || err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
+
+  const isNoAccountError = error.toLowerCase().includes('account') || error.toLowerCase().includes('register');
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
@@ -47,9 +49,21 @@ const Login: React.FC = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl flex items-center gap-2 text-sm animate-fade-in">
-            <AlertCircle size={16} className="shrink-0" />
-            <span>{error}</span>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-2xl flex flex-col gap-2 text-sm animate-fade-in">
+            <div className="flex items-center gap-2">
+              <AlertCircle size={18} className="shrink-0 text-red-500" />
+              <span className="font-semibold">{error}</span>
+            </div>
+            {isNoAccountError && (
+              <div className="pt-1">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-1 text-xs font-black text-white bg-brand hover:bg-brand-dark px-3 py-1.5 rounded-xl shadow transition-all duration-200"
+                >
+                  Create an Account Now &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

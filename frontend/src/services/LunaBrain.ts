@@ -1,6 +1,8 @@
 // LunaBrain.ts - Context-Aware & Emotionally Intelligent AI Engine for HerLytics
 
-export interface UserContext {
+import { getLatestAssessmentData, getUserScopedKey } from '../utils/assessmentState';
+
+export type UserContext = {
   userName: string;
   age: number;
   height: number;
@@ -10,8 +12,7 @@ export interface UserContext {
   pcosRiskCategory: string;
   pcosRiskPercentage: number;
   assessmentCompleted: boolean;
-  lastPeriodDate?: string;
-  predictedNextPeriod?: string;
+  lastPeriodDate: string;
   cycleLength: number;
   waterGlasses: number;
   waterGoalGlasses: number;
@@ -19,8 +20,8 @@ export interface UserContext {
   sleepGoalHours: number;
   currentMood: string;
   exerciseDays: number;
-  dietPreference: 'Vegetarian' | 'Non-Vegetarian' | 'Vegan';
-}
+  dietPreference: string;
+};
 
 export type ChatMessage = {
   id: string;
@@ -34,13 +35,13 @@ export type ChatMessage = {
 export const getStoredUserContext = (): UserContext => {
   const storedUser = localStorage.getItem('user');
   const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-  const userName = parsedUser?.firstName || 'Ananya';
+  const userName = parsedUser?.firstName || 'Friend';
 
-  const storedAssessment = localStorage.getItem('demo_latest_assessment');
-  const parsedAssessment = storedAssessment ? JSON.parse(storedAssessment) : null;
+  const parsedAssessment = getLatestAssessmentData();
   const assessmentCompleted = Boolean(parsedAssessment && (parsedAssessment.riskPercentage !== undefined || parsedAssessment.riskCategory));
 
-  const answersMap = new Map(parsedAssessment?.answers?.map((a: any) => [a.key, a.value]) || []);
+  const answersArray = parsedAssessment?.answers || (parsedAssessment?.answersMap ? Object.entries(parsedAssessment.answersMap).map(([key, value]) => ({ key, value })) : []);
+  const answersMap = new Map(answersArray.map((a: any) => [a.key, a.value]));
 
   const weight = parseFloat((answersMap.get('weight') as string) || '0');
   const height = parseFloat((answersMap.get('height') as string) || '0');
@@ -54,10 +55,15 @@ export const getStoredUserContext = (): UserContext => {
     else bmiCategory = 'Obese';
   }
 
-  const storedLogs = JSON.parse(localStorage.getItem('demo_menstrual_logs') || '[]');
+  const logsKey = getUserScopedKey('menstrual_logs');
+  const storedLogs = JSON.parse(localStorage.getItem(logsKey) || '[]');
   const latestLog = storedLogs.length > 0 ? storedLogs[0] : null;
 
-  const storedMood = localStorage.getItem('demo_today_mood') || 'Neutral 😐';
+  const moodKey = getUserScopedKey('today_mood');
+  const storedMood = localStorage.getItem(moodKey) || 'Neutral 😐';
+
+  const waterKey = getUserScopedKey('water_glasses');
+  const sleepKey = getUserScopedKey('sleep_hours');
 
   return {
     userName,
@@ -66,14 +72,14 @@ export const getStoredUserContext = (): UserContext => {
     weight,
     bmi,
     bmiCategory,
-    pcosRiskCategory: parsedAssessment?.riskCategory || '',
+    pcosRiskCategory: parsedAssessment?.riskCategory || 'Unassessed',
     pcosRiskPercentage: parsedAssessment?.riskPercentage || 0,
     assessmentCompleted,
     lastPeriodDate: latestLog?.logDate || '',
     cycleLength: latestLog?.cycleLength || 28,
-    waterGlasses: parseInt(localStorage.getItem('demo_water_glasses') || '0'),
+    waterGlasses: parseInt(localStorage.getItem(waterKey) || '0'),
     waterGoalGlasses: 8,
-    sleepHours: parseFloat(localStorage.getItem('demo_sleep_hours') || '0'),
+    sleepHours: parseFloat(localStorage.getItem(sleepKey) || '0'),
     sleepGoalHours: 8,
     currentMood: storedMood,
     exerciseDays: parseInt((answersMap.get('exerciseDays') as string) || '0'),

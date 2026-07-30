@@ -1,4 +1,5 @@
 // BloomPointsManager.ts - Garden of Progress & Habit Streak Engine for HerLytics
+import { getUserScopedKey } from '../utils/assessmentState';
 
 export interface HabitStreak {
   name: string;
@@ -63,31 +64,33 @@ export const BADGES = [
 ];
 
 export const getStoredBloomState = (): BloomState => {
-  const stored = localStorage.getItem('demo_bloom_state');
+  const key = getUserScopedKey('bloom_state');
+  const stored = localStorage.getItem(key);
   if (stored) {
     return JSON.parse(stored);
   }
 
   const defaultState: BloomState = {
-    totalBloomPoints: 6,
+    totalBloomPoints: 0,
     bloomLevel: 'Seed',
     bloomLevelIndex: 0,
-    streakDays: 1,
+    streakDays: 0,
     gardenStage: 'Small Seedling',
     gardenStageIcon: '🌱',
-    weeklyProgressDays: 1,
+    weeklyProgressDays: 0,
     bloomPassAvailable: true,
     activeSeasonalTheme: 'Spring',
     habits: INITIAL_HABITS,
     unlockedBadges: []
   };
 
-  localStorage.setItem('demo_bloom_state', JSON.stringify(defaultState));
+  localStorage.setItem(key, JSON.stringify(defaultState));
   return defaultState;
 };
 
 export const saveBloomState = (state: BloomState) => {
-  localStorage.setItem('demo_bloom_state', JSON.stringify(state));
+  const key = getUserScopedKey('bloom_state');
+  localStorage.setItem(key, JSON.stringify(state));
 };
 
 export const toggleHabitToday = (key: string): BloomState => {

@@ -5,6 +5,8 @@ import { ShieldAlert, Heart, Calendar, Dumbbell, Sparkles, AlertOctagon, HelpCir
 import MonthlyReportCard from '../components/MonthlyReportCard';
 import MonthlyAssessmentModal, { type MonthlyAssessmentResult } from '../components/MonthlyAssessmentModal';
 
+import { getLatestAssessmentData } from '../utils/assessmentState';
+
 interface Factor {
   factor: string;
   severity: string;
@@ -25,7 +27,8 @@ interface AssessmentDetails {
   riskCategory: string;
   explanation: string;
   createdAt: string;
-  answers: { key: string; value: string }[];
+  answers?: { key: string; value: string }[];
+  answersMap?: Record<string, any>;
 }
 
 const Insights: React.FC = () => {
@@ -59,11 +62,12 @@ const Insights: React.FC = () => {
     };
 
     const checkStoredFallback = () => {
-      const stored = localStorage.getItem('demo_latest_assessment');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setAssessment(parsed);
-        generateClientInsights(parsed);
+      const data = getLatestAssessmentData();
+      if (data) {
+        setAssessment(data as any);
+        generateClientInsights(data as any);
+      } else {
+        setAssessment(null);
       }
     };
 
@@ -71,7 +75,8 @@ const Insights: React.FC = () => {
   }, []);
 
   const generateClientInsights = (data: AssessmentDetails) => {
-    const answersMap = new Map(data.answers.map((a) => [a.key, a.value]));
+    const answersArray = data.answers || (data.answersMap ? Object.entries(data.answersMap).map(([key, value]) => ({ key, value: String(value) })) : []);
+    const answersMap = new Map(answersArray.map((a) => [a.key, String(a.value)]));
     
     // Generate factors
     const tempFactors: Factor[] = [];

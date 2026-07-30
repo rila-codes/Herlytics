@@ -53,13 +53,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // If backend is not running / network error, fallback to local user session for frontend preview
       if (!err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
         const demoUsers = JSON.parse(localStorage.getItem('demo_users') || '{}');
-        const registered = demoUsers[email.toLowerCase()];
+        const userEmailKey = email.trim().toLowerCase();
+        const registered = demoUsers[userEmailKey];
+        
+        if (!registered) {
+          throw new Error("Account not found. You don't have an account yet. Please register first.");
+        }
+
+        if (registered.password && registered.password !== password) {
+          throw new Error("Invalid password. Please check your credentials.");
+        }
         
         const loggedUser: User = {
           id: Date.now(),
-          email,
-          firstName: registered?.firstName || email.split('@')[0] || 'User',
-          lastName: registered?.lastName || '',
+          email: registered.email || email,
+          firstName: registered.firstName || email.split('@')[0] || 'User',
+          lastName: registered.lastName || '',
         };
         const demoToken = 'demo-jwt-token-' + Date.now();
         

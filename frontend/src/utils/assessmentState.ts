@@ -7,19 +7,64 @@ export interface AssessmentData {
   riskPercentage: number;
   completedAt: string;
   answersMap?: Record<string, any>;
+  answers?: { key: string; value: string }[];
   recommendations?: string[];
   dietPlan?: any;
+  explanation?: string;
+  confidenceScore?: number;
 }
 
-export const ASSESSMENT_STORAGE_KEY = 'demo_latest_assessment';
-export const HISTORY_STORAGE_KEY = 'demo_assessment_history';
+/**
+ * Returns the email of the currently authenticated user, or null if unauthenticated.
+ */
+export const getCurrentUserEmail = (): string | null => {
+  try {
+    const rawUser = localStorage.getItem('user');
+    if (!rawUser) return null;
+    const user = JSON.parse(rawUser);
+    return user?.email ? user.email.toLowerCase().trim() : null;
+  } catch {
+    return null;
+  }
+};
 
 /**
- * Returns true only if the user has completed at least one valid assessment.
+ * Gets the user-scoped localStorage key for latest assessment.
+ */
+export const getAssessmentKey = (): string => {
+  const email = getCurrentUserEmail();
+  return email ? `herlytics_${email}_latest_assessment` : 'demo_latest_assessment';
+};
+
+/**
+ * Gets the user-scoped localStorage key for assessment history.
+ */
+export const getHistoryKey = (): string => {
+  const email = getCurrentUserEmail();
+  return email ? `herlytics_${email}_assessment_history` : 'demo_assessment_history';
+};
+
+/**
+ * Gets any generic user-scoped storage key.
+ */
+export const getUserScopedKey = (baseKey: string): string => {
+  const email = getCurrentUserEmail();
+  return email ? `herlytics_${email}_${baseKey}` : `demo_${baseKey}`;
+};
+
+export const ASSESSMENT_STORAGE_KEY = getAssessmentKey();
+export const HISTORY_STORAGE_KEY = getHistoryKey();
+
+/**
+ * Returns true only if the currently logged in user has completed at least one valid assessment.
  */
 export const hasCompletedAssessment = (): boolean => {
   try {
-    const raw = localStorage.getItem(ASSESSMENT_STORAGE_KEY);
+    const email = getCurrentUserEmail();
+    if (!email) return false;
+    
+    const key = getAssessmentKey();
+    const raw = localStorage.getItem(key);
     if (!raw) return false;
     const parsed = JSON.parse(raw);
     return Boolean(parsed && (parsed.riskPercentage !== undefined || parsed.riskCategory || parsed.completedAt || parsed.answers));
@@ -30,12 +75,16 @@ export const hasCompletedAssessment = (): boolean => {
 };
 
 /**
- * Retrieves the latest authentic assessment data for the user.
+ * Retrieves the latest authentic assessment data for the logged-in user.
  * Returns null if no assessment has been completed.
  */
 export const getLatestAssessmentData = (): AssessmentData | null => {
   try {
-    const raw = localStorage.getItem(ASSESSMENT_STORAGE_KEY);
+    const email = getCurrentUserEmail();
+    if (!email) return null;
+
+    const key = getAssessmentKey();
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     return JSON.parse(raw) as AssessmentData;
   } catch (err) {
@@ -45,20 +94,23 @@ export const getLatestAssessmentData = (): AssessmentData | null => {
 };
 
 /**
- * Saves completed assessment results to localStorage.
+ * Saves completed assessment results to user-scoped localStorage.
  */
 export const saveAssessmentResults = (data: Record<string, any>): void => {
   try {
-    localStorage.setItem(ASSESSMENT_STORAGE_KEY, JSON.stringify(data));
+    const assessmentKey = getAssessmentKey();
+    const historyKey = getHistoryKey();
+
+    localStorage.setItem(assessmentKey, JSON.stringify(data));
     
-    // Also save to history
-    const existingHistoryRaw = localStorage.getItem(HISTORY_STORAGE_KEY);
+    // Also save to user-scoped history
+    const existingHistoryRaw = localStorage.getItem(historyKey);
     const history = existingHistoryRaw ? JSON.parse(existingHistoryRaw) : [];
     history.unshift({
       ...data,
       completedAt: data.completedAt || new Date().toISOString()
     });
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+    localStorage.setItem(historyKey, JSON.stringify(history));
     
     // Dispatch custom event to notify components across the app to re-render immediately
     window.dispatchEvent(new Event('herlytics_assessment_updated'));

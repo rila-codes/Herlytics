@@ -14,6 +14,7 @@ import {
   getStoredBloomState, saveBloomState, toggleHabitToday, 
   type BloomState, BLOOM_LEVELS, BADGES 
 } from '../services/BloomPointsManager';
+import { getHistoryKey, getLatestAssessmentData, getCurrentUserEmail } from '../utils/assessmentState';
 
 interface AssessmentHistoryItem {
   id: number;
@@ -28,28 +29,27 @@ const Profile: React.FC = () => {
   const { user, logout, updateProfileName } = useAuth();
   const navigate = useNavigate();
 
-  const [firstName, setFirstName] = useState(user?.firstName || 'Ananya');
-  const [lastName, setLastName] = useState(user?.lastName || 'Sharma');
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [email, setEmail] = useState(user?.email || '');
+
   const [history, setHistory] = useState<AssessmentHistoryItem[]>([]);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Bloom Garden State
-  const [bloomState, setBloomState] = useState<BloomState>(getStoredBloomState());
+  const [bloomState, setBloomState] = useState<BloomState>(() => getStoredBloomState());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [latestReassessment, setLatestReassessment] = useState<MonthlyAssessmentResult | null>(null);
 
   useEffect(() => {
-    // Clear old demo cached state if it contains legacy multi-week numbers
-    const storedState = localStorage.getItem('demo_bloom_state');
-    if (storedState) {
-      const parsed = JSON.parse(storedState);
-      if (parsed.streakDays > 7) {
-        localStorage.removeItem('demo_bloom_state');
-        setBloomState(getStoredBloomState());
-      }
+    if (user) {
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setEmail(user.email);
     }
+    setBloomState(getStoredBloomState());
 
     const fetchHistory = async () => {
       try {
@@ -65,17 +65,25 @@ const Profile: React.FC = () => {
     };
 
     const loadStoredHistory = () => {
-      const storedHistory = JSON.parse(localStorage.getItem('demo_assessment_history') || '[]');
-      const storedLatest = localStorage.getItem('demo_latest_assessment');
+      const activeEmail = getCurrentUserEmail();
+      if (!activeEmail) {
+        setHistory([]);
+        return;
+      }
+      const historyKey = getHistoryKey();
+      const storedHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      const latestData = getLatestAssessmentData();
       if (storedHistory.length > 0) {
         setHistory(storedHistory);
-      } else if (storedLatest) {
-        setHistory([JSON.parse(storedLatest)]);
+      } else if (latestData) {
+        setHistory([latestData as any]);
+      } else {
+        setHistory([]);
       }
     };
 
     fetchHistory();
-  }, []);
+  }, [user]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();

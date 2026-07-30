@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Sparkles, X, Check, ArrowRight, HeartPulse, ShieldCheck, Award, TrendingDown, CheckCircle2 } from 'lucide-react';
 
+import { getLatestAssessmentData } from '../utils/assessmentState';
+
 export interface MonthlyAssessmentResult {
   id: string;
   monthName: string;
@@ -39,10 +41,9 @@ const MonthlyAssessmentModal: React.FC<MonthlyAssessmentModalProps> = ({ isOpen,
   const year = now.getFullYear();
 
   const handleCalculateResults = () => {
-    // Read initial risk percentage
-    const storedLatest = localStorage.getItem('demo_latest_assessment');
-    const parsed = storedLatest ? JSON.parse(storedLatest) : null;
-    const initialRisk = parsed?.riskPercentage || 68.5;
+    // Read initial risk percentage from user-scoped assessment state
+    const parsed = getLatestAssessmentData();
+    const initialRisk = parsed?.riskPercentage || 50;
 
     // Calculate improvement points
     let pointsOff = 0;

@@ -17,6 +17,8 @@ interface AssessmentDetails {
   answers: { key: string; value: string }[];
 }
 
+import { getLatestAssessmentData } from '../utils/assessmentState';
+
 const Result: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -26,25 +28,12 @@ const Result: React.FC = () => {
 
   useEffect(() => {
     const fetchResult = async () => {
-      if (id === 'demo') {
-        const stored = localStorage.getItem('demo_latest_assessment');
+      if (id === 'demo' || !id) {
+        const stored = getLatestAssessmentData();
         if (stored) {
-          setAssessment(JSON.parse(stored));
+          setAssessment(stored as any);
         } else {
-          setAssessment({
-            id: 'demo',
-            riskPercentage: 68.5,
-            confidenceScore: 92.0,
-            riskCategory: 'Moderate Risk',
-            explanation: 'Based on your reported irregular cycle parameters and lifestyle inputs, our AI model predicts a moderate likelihood of PCOS & hormonal imbalance.',
-            createdAt: new Date().toISOString(),
-            answers: [
-              { key: 'age', value: '24' },
-              { key: 'height', value: '165' },
-              { key: 'weight', value: '65' },
-              { key: 'cycleRegularity', value: '1' }
-            ],
-          });
+          setError('No assessment results found. Please complete your wellness assessment first.');
         }
         setLoading(false);
         return;
@@ -55,21 +44,12 @@ const Result: React.FC = () => {
         setAssessment(res.data);
       } catch (err: any) {
         if (!err.response || err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
-          const stored = localStorage.getItem('demo_latest_assessment');
-          setAssessment(stored ? JSON.parse(stored) : {
-            id: Number(id) || 'demo',
-            riskPercentage: 68.5,
-            confidenceScore: 92.0,
-            riskCategory: 'Moderate Risk',
-            explanation: 'Based on your reported irregular cycle parameters and lifestyle inputs, our AI model predicts a moderate likelihood of PCOS & hormonal imbalance.',
-            createdAt: new Date().toISOString(),
-            answers: [
-              { key: 'age', value: '24' },
-              { key: 'height', value: '165' },
-              { key: 'weight', value: '65' },
-              { key: 'cycleRegularity', value: '1' }
-            ],
-          });
+          const stored = getLatestAssessmentData();
+          if (stored) {
+            setAssessment(stored as any);
+          } else {
+            setError('No assessment results found. Please complete your wellness assessment first.');
+          }
         } else {
           setError('Failed to load assessment results. Please make sure the backend is running.');
         }
