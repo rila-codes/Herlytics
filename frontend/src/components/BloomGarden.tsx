@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Sun, CloudRain, Snowflake, Heart, ShieldCheck, Award, Info, RefreshCw, Layers } from 'lucide-react';
 import { type BloomState, GARDEN_STAGES } from '../services/BloomPointsManager';
+import { getStreakInfo } from '../utils/streakManager';
 
 interface BloomGardenProps {
   bloomState: BloomState;
@@ -36,10 +37,25 @@ const THEME_STYLES = {
 
 const BloomGarden: React.FC<BloomGardenProps> = ({ bloomState, onThemeChange }) => {
   const currentTheme = THEME_STYLES[bloomState.activeSeasonalTheme || 'Spring'];
+  const [streakInfo, setStreakInfo] = useState(() => getStreakInfo());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setStreakInfo(getStreakInfo());
+    };
+    window.addEventListener('herlytics_streak_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('herlytics_streak_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const effectiveDays = Math.max(bloomState.streakDays || 0, streakInfo.currentStreak || 0);
 
   // Determine garden stage
   const currentStageObj = GARDEN_STAGES.reduce((acc, curr) => {
-    if (bloomState.streakDays >= curr.days) return curr;
+    if (effectiveDays >= curr.days) return curr;
     return acc;
   }, GARDEN_STAGES[0]);
 
@@ -58,7 +74,7 @@ const BloomGarden: React.FC<BloomGardenProps> = ({ bloomState, onThemeChange }) 
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 relative z-10">
         <div>
           <span className="text-[10px] font-black uppercase tracking-widest text-brand-pinkdark bg-white/80 px-3 py-1 rounded-full border border-pink-200 shadow-sm">
-            {currentStageObj.stage} • Day {bloomState.streakDays}
+            {currentStageObj.stage} • {streakInfo.currentStreak} Day Streak
           </span>
           <h3 className="text-xl font-black text-brand-text pt-1 flex items-center gap-2">
             <span>Garden of Progress</span>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Heart, X, Smile, Meh, Frown, Moon } from 'lucide-react';
 import { getStoredUserContext } from '../services/LunaBrain';
+import { getUserScopedKey } from '../utils/assessmentState';
+import { recordDailyActivity, getTodayDateStr } from '../utils/streakManager';
 
 interface DailyCheckinModalProps {
   onCheckinComplete: (mood: string) => void;
@@ -11,8 +13,9 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ onCheckinComplete
   const [userName, setUserName] = useState('User');
 
   useEffect(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const lastCheckin = localStorage.getItem('demo_last_checkin_date');
+    const todayStr = getTodayDateStr();
+    const checkinKey = getUserScopedKey('last_checkin_date');
+    const lastCheckin = localStorage.getItem(checkinKey);
 
     // Show modal if check-in hasn't been done today
     if (lastCheckin !== todayStr) {
@@ -30,11 +33,17 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ onCheckinComplete
   ];
 
   const handleSelectMood = (moodLabel: string, moodEmoji: string) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayDateStr();
     const fullMood = `${moodLabel} ${moodEmoji}`;
     
-    localStorage.setItem('demo_last_checkin_date', todayStr);
-    localStorage.setItem('demo_today_mood', fullMood);
+    const checkinKey = getUserScopedKey('last_checkin_date');
+    const moodKey = getUserScopedKey('today_mood');
+
+    localStorage.setItem(checkinKey, todayStr);
+    localStorage.setItem(moodKey, fullMood);
+
+    // Record daily wellness activity to advance streak
+    recordDailyActivity('checkin');
     
     setIsOpen(false);
     onCheckinComplete(fullMood);

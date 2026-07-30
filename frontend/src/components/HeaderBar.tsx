@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Bell, ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { getStreakInfo, type StreakInfo } from '../utils/streakManager';
 
 const HeaderBar: React.FC = () => {
   const { user } = useAuth();
-  const displayName = user?.firstName || 'Rila';
+  const displayName = user?.firstName || 'Friend';
+  const [streak, setStreak] = useState<StreakInfo>(() => getStreakInfo());
+
+  useEffect(() => {
+    const handleStreakUpdate = () => {
+      setStreak(getStreakInfo());
+    };
+
+    window.addEventListener('herlytics_streak_updated', handleStreakUpdate);
+    window.addEventListener('storage', handleStreakUpdate);
+    return () => {
+      window.removeEventListener('herlytics_streak_updated', handleStreakUpdate);
+      window.removeEventListener('storage', handleStreakUpdate);
+    };
+  }, [user]);
 
   return (
     <header className="h-18 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 md:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
@@ -23,14 +38,18 @@ const HeaderBar: React.FC = () => {
       {/* RIGHT CONTROLS */}
       <div className="flex items-center gap-4">
         
-        {/* STREAK PILL */}
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-pink-50 border border-pink-200/80 rounded-2xl shadow-2xs">
-          <span className="text-sm">🌸</span>
+        {/* DYNAMIC STREAK PILL */}
+        <Link 
+          to="/profile"
+          className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-pink-50 hover:bg-pink-100 border border-pink-200/80 rounded-2xl shadow-2xs transition-all cursor-pointer group"
+          title={streak.subtitle}
+        >
+          <span className="text-sm group-hover:scale-110 transition-transform">{streak.badgeIcon}</span>
           <div>
-            <span className="font-black text-xs text-pink-700 block leading-tight">7 Day Streak</span>
-            <span className="text-[9px] font-bold text-pink-500 block leading-tight">Keep it up!</span>
+            <span className="font-black text-xs text-pink-700 block leading-tight">{streak.streakTitle}</span>
+            <span className="text-[9px] font-bold text-pink-500 block leading-tight truncate max-w-[120px]">{streak.subtitle}</span>
           </div>
-        </div>
+        </Link>
 
         {/* NOTIFICATION BELL */}
         <button className="h-9 w-9 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-center text-gray-600 hover:text-brand hover:bg-purple-50 transition-all relative">

@@ -20,9 +20,12 @@ import Education from './pages/Education';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 
+import StreakMilestoneModal from './components/StreakMilestoneModal';
+
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <StreakMilestoneModal />
       <Router>
         <Routes>
           {/* Public Routes */}

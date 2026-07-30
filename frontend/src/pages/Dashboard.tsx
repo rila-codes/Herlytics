@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Sparkles, Droplets, Moon, Footprints, Heart, Smile, Scale, 
-  ArrowRight, Lock, ShieldCheck, CheckCircle2, BookOpen, Clock, AlertCircle, FileText
+  ArrowRight, Lock, ShieldCheck, CheckCircle2, BookOpen, Clock, AlertCircle, FileText, Award, Trophy
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { hasCompletedAssessment, getLatestAssessmentData } from '../utils/assessmentState';
+import { getStreakInfo, recordDailyActivity, type StreakInfo } from '../utils/streakManager';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -14,18 +15,22 @@ const Dashboard: React.FC = () => {
   const [isAssessed, setIsAssessed] = useState<boolean>(() => hasCompletedAssessment());
   const [assessmentData, setAssessmentData] = useState(() => getLatestAssessmentData());
   const [waterGlasses, setWaterGlasses] = useState(4);
+  const [streak, setStreak] = useState<StreakInfo>(() => getStreakInfo());
 
-  // Listen for assessment updates in real-time
+  // Listen for assessment & streak updates in real-time
   useEffect(() => {
     const handleUpdate = () => {
       setIsAssessed(hasCompletedAssessment());
       setAssessmentData(getLatestAssessmentData());
+      setStreak(getStreakInfo());
     };
 
     window.addEventListener('herlytics_assessment_updated', handleUpdate);
+    window.addEventListener('herlytics_streak_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
     return () => {
       window.removeEventListener('herlytics_assessment_updated', handleUpdate);
+      window.removeEventListener('herlytics_streak_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
   }, []);
@@ -76,6 +81,100 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+        </div>
+
+        {/* ⚡ DYNAMIC WELLNESS STREAK WIDGET */}
+        {streak.resetMessage && (
+          <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border border-purple-200 text-purple-900 px-6 py-4 rounded-3xl flex items-center gap-3 text-sm animate-fade-in shadow-xs">
+            <span className="text-2xl shrink-0">🌸</span>
+            <div className="space-y-0.5">
+              <span className="font-black text-xs uppercase tracking-wider text-purple-700 block">Fresh Start Today</span>
+              <p className="font-semibold text-xs text-purple-900 leading-relaxed">{streak.resetMessage}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="glass rounded-[2.5rem] border border-pink-200/80 p-6 md:p-8 shadow-card space-y-6">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-400 to-purple-600 p-0.5 shadow-md shrink-0">
+                <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center text-3xl shadow-inner">
+                  {streak.badgeIcon}
+                </div>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-200">
+                  Personalized Wellness Streak
+                </span>
+                <h3 className="text-xl md:text-2xl font-black text-gray-900 pt-1 flex items-center gap-2">
+                  {streak.streakTitle}
+                </h3>
+                <p className="text-xs text-gray-500 font-semibold">{streak.subtitle}</p>
+              </div>
+            </div>
+
+            {streak.nextMilestone && (
+              <div className="bg-purple-50/80 border border-purple-200 px-4 py-3 rounded-2xl text-left md:text-right">
+                <span className="text-[10px] font-extrabold text-purple-700 uppercase tracking-wider block">Next Reward Milestone</span>
+                <span className="text-xs font-black text-purple-900 block pt-0.5">
+                  {streak.nextMilestone.icon} {streak.nextMilestone.badge} ({streak.currentStreak} / {streak.nextMilestone.days} Days)
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Action Activity Buttons */}
+          <div className="space-y-2 pt-2 border-t border-gray-100">
+            <span className="text-xs font-extrabold text-gray-600 block">Complete daily activities to grow your streak:</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <button 
+                onClick={() => { recordDailyActivity('water'); setWaterGlasses(prev => prev + 1); }}
+                className="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl text-left flex items-center gap-2 transition-all cursor-pointer group"
+              >
+                <Droplets size={16} className="text-blue-600 shrink-0 group-hover:scale-110 transition-transform" />
+                <div>
+                  <span className="text-xs font-bold text-blue-900 block leading-tight">Log Water</span>
+                  <span className="text-[10px] text-blue-600 font-medium">💧 Intake</span>
+                </div>
+              </button>
+
+              <Link 
+                to="/tracker"
+                onClick={() => recordDailyActivity('sleep')}
+                className="p-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-2xl text-left flex items-center gap-2 transition-all group"
+              >
+                <Moon size={16} className="text-purple-600 shrink-0 group-hover:scale-110 transition-transform" />
+                <div>
+                  <span className="text-xs font-bold text-purple-900 block leading-tight">Log Sleep</span>
+                  <span className="text-[10px] text-purple-600 font-medium">😴 Hours</span>
+                </div>
+              </Link>
+
+              <Link 
+                to="/tracker"
+                onClick={() => recordDailyActivity('mood')}
+                className="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-2xl text-left flex items-center gap-2 transition-all group"
+              >
+                <Smile size={16} className="text-amber-600 shrink-0 group-hover:scale-110 transition-transform" />
+                <div>
+                  <span className="text-xs font-bold text-amber-900 block leading-tight">Log Mood</span>
+                  <span className="text-[10px] text-amber-600 font-medium">😊 Feelings</span>
+                </div>
+              </Link>
+
+              <Link 
+                to="/tracker"
+                onClick={() => recordDailyActivity('exercise')}
+                className="p-3 bg-pink-50 hover:bg-pink-100 border border-pink-200 rounded-2xl text-left flex items-center gap-2 transition-all group"
+              >
+                <Footprints size={16} className="text-pink-600 shrink-0 group-hover:scale-110 transition-transform" />
+                <div>
+                  <span className="text-xs font-bold text-pink-900 block leading-tight">Log Activity</span>
+                  <span className="text-[10px] text-pink-600 font-medium">🏃 Movement</span>
+                </div>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* 📋 ASSESSMENT PROGRESS CARD */}

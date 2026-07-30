@@ -15,6 +15,7 @@ import {
   type BloomState, BLOOM_LEVELS, BADGES 
 } from '../services/BloomPointsManager';
 import { getHistoryKey, getLatestAssessmentData, getCurrentUserEmail } from '../utils/assessmentState';
+import { getStreakInfo, STREAK_MILESTONES, type StreakInfo } from '../utils/streakManager';
 
 interface AssessmentHistoryItem {
   id: number;
